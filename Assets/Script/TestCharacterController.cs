@@ -17,20 +17,27 @@ public class TestCharacterController : MonoBehaviour
     public SpawManager spawManager; // khai báo biến spawManager để quản lý việc tạo đường
                                     // Start is called before the first frame update
 
+    private PerformanceTracker tracker;
+    public bool isStopline; // biến để kiểm tra xem có đang ở vạch dừng hay không
 
     void Start()
     {
-     
+        tracker = FindObjectOfType<PerformanceTracker>();
         currentForwardSpeed = speedMove; // gán giá trị tốc độ di chuyển hiện tại bằng giá trị speedMove
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKey(KeyCode.Space))
+        UpdateDDASpeed();
+        if (Input.GetKey(KeyCode.Space))
         {
             currentForwardSpeed = 0f;
+        }
+        else if (Input.GetKey(KeyCode.DownArrow))
+        {
+            currentForwardSpeed = -speedMove * 0.5f; // nếu nhấn phím mũi tên xuống thì tốc độ di chuyển hiện tại sẽ bằng một nửa giá trị speedMove
         }
         else
         {
@@ -61,6 +68,23 @@ public class TestCharacterController : MonoBehaviour
         }
 
     }
+
+    void UpdateDDASpeed()
+    {
+        if (tracker == null)
+            return;
+
+        //------------------------------------------------
+        // DDA player speed
+        //------------------------------------------------
+
+        speedMove =
+            Mathf.Lerp(
+                12f,
+                24f,
+                tracker.difficultyValue
+            );
+    }
     public float GetCurrentSpeed()
     {
         return currentForwardSpeed;
@@ -70,7 +94,7 @@ public class TestCharacterController : MonoBehaviour
         spawManager.SpawnTriggerEnterd();
 
 
-        
+
         if (other.CompareTag("Sidewalk") && waitTime <= 0f) //check cái mà player đụng vào có phải là lề không?
 
         {
@@ -80,24 +104,24 @@ public class TestCharacterController : MonoBehaviour
             ViolationStatistics.Instance.RecordViolation("Đi vào vỉa hè", 4);
 
             LicensePointManager.Instance.DeductPoint(4);
-            
-            UIManager.Instance.showViolationNotyfy("Bạn đã đi vào vỉa hè", -4);
-            
+
+            UIManager.Instance.showViolationNotyfy("Đi vào vỉa hè", -4);
+
             waitTime = sidewalkDelay; // waitTime phải bằng 2f set ở sidewalkDelay thì mới dc phạt tiếp. tránh gọi liên tục
         }
 
-        
+
         if (other.CompareTag("NPC"))
         {
             Debug.Log("Va chạm với phương tiện khác");
 
-            ViolationStatistics.Instance.RecordViolation("Va chạm với phương tiện khác",4);
+            ViolationStatistics.Instance.RecordViolation("Va chạm với phương tiện khác", 4);
 
             LicensePointManager.Instance.DeductPoint(4);
 
-            UIManager.Instance.showViolationNotyfy("Bạn đã va chạm với phương tiện khác", -4);
-            
-           
+            UIManager.Instance.showViolationNotyfy("Va chạm với phương tiện khác", -4);
+
+
         }
 
     }

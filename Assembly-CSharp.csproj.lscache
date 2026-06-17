@@ -50,14 +50,14 @@ TemporaryDependencyNodeTargetIdentifier=netstandard2.1
 /warnaserror+:NU1605
 
 [sourceFiles]
-Assets/Clirgo/Pixel Kit - Car Free/Demo/Scripts/
+Assets/Import/Clirgo/Pixel Kit - Car Free/Demo/Scripts/
  CameraMovement.cs
  EngineWorking.cs
  ObjectsCleaner.cs
  ObjectSpawner.cs
  RoadMovement.cs
  WheelRotate.cs
-Assets/
+Assets/Import/
  FastMesh/Scripts/SceneViewText.cs
  MapEditor/Scripts/
   BezierCurveDrawer.cs
@@ -76,29 +76,6 @@ Assets/
   CurveSizeAttribute.cs
   Examples&Extras/BikeControlsExample.cs
   WheelFrictionCurveVisual.cs
- Script/
-  ButtonPlay.cs
-  DestroyNPC.cs
-  DifficultyManager.cs
-  GameOver.cs
-  LicensePointManager.cs
-  Menu.cs
-  NPCMove.cs
-  NPCPooling.cs
-  NPCSpawner.cs
-  Performance.cs
-  PlotSpawner.cs
-  RoadReturn.cs
-  RoadSegment.cs
-  RoadSpawner.cs
-  RoadTrigger.cs
-  SpawManager.cs
-  StopLineChecker.cs
-  TestCamera.cs
-  TestCharacterController.cs
-  TrafficLightController.cs
-  UIManager.cs
-  ViolationStatistics.cs
  Traffic Lights System/
   Demo/Scripts/TL_Demo.cs
   Scripts/
@@ -107,7 +84,29 @@ Assets/
    TrafficLightBase.cs
    TrafficLightManager.cs
    TrafficLightPhase.cs
- TutorialInfo/Scripts/Readme.cs
+Assets/Script/
+ DestroyNPC.cs
+ DifficultyManager.cs
+ GameOver.cs
+ LicensePointManager.cs
+ Menu.cs
+ NPCMove.cs
+ NPCPooling.cs
+ NPCSpawner.cs
+ PerformanceTracker.cs
+ PlotSpawner.cs
+ RoadReturn.cs
+ RoadSegment.cs
+ RoadSpawner.cs
+ RoadTrigger.cs
+ SpawManager.cs
+ StopLineChecker.cs
+ TestCamera.cs
+ TestCharacterController.cs
+ TrafficLightController.cs
+ UIManager.cs
+ ViolationStatistics.cs
+Assets/TutorialInfo/Scripts/Readme.cs
 Temp/obj/Assembly-CSharp/.NETStandard,Version=v2.1.AssemblyAttributes.cs
 
 [metadataReferences]
@@ -340,7 +339,7 @@ Temp/bin/Debug/
 C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Data/Tools/Unity.SourceGenerators/
  Unity.Properties.SourceGenerator.dll
  Unity.SourceGenerators.dll
-C:/Users/Pham Thi Anh Thu/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.2.1/Analyzers/Microsoft.Unity.Analyzers.dll
+C:/Users/Pham Thi Anh Thu/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.2.2/Analyzers/Microsoft.Unity.Analyzers.dll
 
 [analyzerConfigFiles]
 Temp/obj/Assembly-CSharp/Assembly-CSharp.GeneratedMSBuildEditorConfig.editorconfig

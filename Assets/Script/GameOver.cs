@@ -42,10 +42,30 @@ public class GameOver : MonoBehaviour
 
     }
 
+    // public void ShowGameOver()
+    // {
+    //     gameOverUI.SetActive(true);
+    //     string stats = ViolationStatistics.Instance.GetStatisticsText();
+    //     statsText.text = stats;
+    // }
+
     public void ShowGameOver()
     {
+        //------------------------------------------------
+        // Ẩn gameplay UI
+        //------------------------------------------------
+
+        UIManager.Instance.HideGameplayUI();
+
+        //------------------------------------------------
+        // Hiện game over
+        //------------------------------------------------
+
         gameOverUI.SetActive(true);
-        string stats = ViolationStatistics.Instance.GetStatisticsText();
+
+        string stats =
+            ViolationStatistics.Instance.GetStatisticsText();
+
         statsText.text = stats;
     }
 

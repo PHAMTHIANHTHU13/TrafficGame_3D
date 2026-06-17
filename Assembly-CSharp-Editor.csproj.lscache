@@ -50,16 +50,16 @@ TemporaryDependencyNodeTargetIdentifier=netstandard2.1
 /warnaserror+:NU1605
 
 [sourceFiles]
-Assets/MapEditor/Scripts/Editor/
+Assets/Import/MapEditor/Scripts/Editor/
  MapEditorInspector.cs
  RailingInspector.cs
  RoadEditorInspector.cs
  RoadSettingsClipboard.cs
  TrafficLineGeneratorEditor.cs
-Assets/
+Assets/Import/
  RayznGames/BicycleSystem/Scripts/Editor/BigCurveDrawer.cs
  Traffic Lights System/Editor/TrafficLightManagerEditor.cs
- TutorialInfo/Scripts/Editor/ReadmeEditor.cs
+Assets/TutorialInfo/Scripts/Editor/ReadmeEditor.cs
 Temp/obj/Assembly-CSharp-Editor/.NETStandard,Version=v2.1.AssemblyAttributes.cs
 
 [metadataReferences]
@@ -302,7 +302,7 @@ Temp/bin/Debug/
 C:/Program Files/Unity/Hub/Editor/2022.3.62f3/Editor/Data/Tools/Unity.SourceGenerators/
  Unity.Properties.SourceGenerator.dll
  Unity.SourceGenerators.dll
-C:/Users/Pham Thi Anh Thu/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.2.1/Analyzers/Microsoft.Unity.Analyzers.dll
+C:/Users/Pham Thi Anh Thu/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.2.2/Analyzers/Microsoft.Unity.Analyzers.dll
 
 [analyzerConfigFiles]
 Temp/obj/Assembly-CSharp-Editor/Assembly-CSharp-Editor.GeneratedMSBuildEditorConfig.editorconfig
