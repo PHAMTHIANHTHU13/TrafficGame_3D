@@ -4,44 +4,14 @@ using UnityEngine;
 
 public class PerformanceTracker : MonoBehaviour
 {
-    //------------------------------------------------
-    // REALTIME WINDOW
-    //------------------------------------------------
-
-    [Header("Realtime Window")]
     public float evaluationWindow = 30f;
-
-    //------------------------------------------------
-    // SURVIVAL
-    //------------------------------------------------
-
-    [Header("Realtime Survival")]
     public float recentSurvivalTime;
 
-    //------------------------------------------------
-    // VIOLATIONS
-    //------------------------------------------------
-
-    [Header("Realtime Violations")]
     public int recentViolationCount;
 
-    //------------------------------------------------
-    // DDA RESULT
-    //------------------------------------------------
-
-    [Range(0f, 1f)]
     public float difficultyValue;
 
-    //------------------------------------------------
-    // violation timestamps
-    //------------------------------------------------
-
-    private List<float> violationTimes =
-        new List<float>();
-
-    //------------------------------------------------
-    // LEVEL
-    //------------------------------------------------
+    private List<float> violationTimes = new List<float>();
 
     public enum DifficultyLevel
     {
@@ -54,164 +24,69 @@ public class PerformanceTracker : MonoBehaviour
 
     public DifficultyLevel currentLevel;
 
-    //------------------------------------------------
-    // UPDATE
-    //------------------------------------------------
-
     void Update()
     {
-        //------------------------------------------------
-        // realtime survival
-        //------------------------------------------------
-
-        recentSurvivalTime +=
-            Time.deltaTime;
-
-        //------------------------------------------------
-        // clamp window
-        //------------------------------------------------
-
-        if (
-            recentSurvivalTime
-            > evaluationWindow
-        )
+        recentSurvivalTime += Time.deltaTime;
+        if (recentSurvivalTime > evaluationWindow)
         {
-            recentSurvivalTime =
-                evaluationWindow;
+            recentSurvivalTime = evaluationWindow;
         }
-
-        //------------------------------------------------
-        // remove old violations
-        //------------------------------------------------
 
         RemoveExpiredViolations();
 
-        //------------------------------------------------
-        // update count
-        //------------------------------------------------
-
-        recentViolationCount =
-            violationTimes.Count;
-
-        //------------------------------------------------
-        // calculate DDA
-        //------------------------------------------------
+        recentViolationCount = violationTimes.Count;
 
         CalculateDifficulty();
     }
-
-    //------------------------------------------------
-    // ADD VIOLATION
-    //------------------------------------------------
-
     public void AddViolation()
     {
-        //------------------------------------------------
-        // save time
-        //------------------------------------------------
-
-        violationTimes.Add(
-            Time.time
-        );
-
-        //------------------------------------------------
-        // giảm difficulty mềm
-        //------------------------------------------------
-
-        recentSurvivalTime *= 0.8f;
+        violationTimes.Add(Time.time);
+        // recentSurvivalTime *= 0.5f;
+        recentSurvivalTime = Mathf.Max(0, recentSurvivalTime - 5f);
     }
-
-    //------------------------------------------------
-    // REMOVE OLD VIOLATIONS
-    //------------------------------------------------
 
     void RemoveExpiredViolations()
     {
-        for (
-            int i =
-            violationTimes.Count - 1;
-            i >= 0;
-            i--
-        )
+        for (int i = violationTimes.Count - 1; i >= 0; i--)
         {
-            if (
-                Time.time
-                - violationTimes[i]
-                > evaluationWindow
-            )
+            if (Time.time - violationTimes[i] > evaluationWindow)
             {
                 violationTimes.RemoveAt(i);
             }
         }
     }
 
-    //------------------------------------------------
-    // CALCULATE DDA
-    //------------------------------------------------
-
     void CalculateDifficulty()
     {
-        //------------------------------------------------
-        // survival score
-        //------------------------------------------------
+        float survivalScore = Mathf.Clamp01(recentSurvivalTime / evaluationWindow);
 
-        float survivalScore =
-            Mathf.Clamp01(
-                recentSurvivalTime
-                / evaluationWindow
-            );
+        float violationPenalty = Mathf.Clamp01(recentViolationCount / 5f);
 
-        //------------------------------------------------
-        // violation penalty
-        //------------------------------------------------
+        difficultyValue = survivalScore - (violationPenalty * 0.6f);
 
-        float violationPenalty =
-            Mathf.Clamp01(
-                recentViolationCount
-                / 5f
-            );
-
-        //------------------------------------------------
-        // FINAL DDA
-        //------------------------------------------------
-
-        difficultyValue =
-            survivalScore
-            - (violationPenalty * 0.6f);
-
-        difficultyValue =
-            Mathf.Clamp01(
-                difficultyValue
-            );
-
-        //------------------------------------------------
-        // classify
-        //------------------------------------------------
+        difficultyValue = Mathf.Clamp01(difficultyValue);
 
         if (difficultyValue < 0.2f)
         {
-            currentLevel =
-                DifficultyLevel.Beginner;
+            currentLevel = DifficultyLevel.Beginner;
         }
         else if (difficultyValue < 0.4f)
         {
-            currentLevel =
-                DifficultyLevel.Easy;
+            currentLevel = DifficultyLevel.Easy;
         }
         else if (difficultyValue < 0.6f)
         {
-            currentLevel =
-                DifficultyLevel.Normal;
+            currentLevel = DifficultyLevel.Normal;
         }
         else if (difficultyValue < 0.8f)
         {
-            currentLevel =
-                DifficultyLevel.Hard;
+            currentLevel = DifficultyLevel.Hard;
         }
         else
         {
-            currentLevel =
-                DifficultyLevel.Expert;
+            currentLevel = DifficultyLevel.Expert;
         }
+
+        Debug.Log("Difficulty: "+ difficultyValue+ " | Violations: " + recentViolationCount); // log độ khó và số vi phạm để kiểm tra
     }
 }

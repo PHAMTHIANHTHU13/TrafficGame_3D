@@ -107,6 +107,11 @@ public class TestCharacterController : MonoBehaviour
 
             UIManager.Instance.showViolationNotyfy("Đi vào vỉa hè", -4);
 
+            if (tracker != null) // điều chỉnh độ khó
+            {
+                tracker.AddViolation();
+            }
+
             waitTime = sidewalkDelay; // waitTime phải bằng 2f set ở sidewalkDelay thì mới dc phạt tiếp. tránh gọi liên tục
         }
 
@@ -120,6 +125,11 @@ public class TestCharacterController : MonoBehaviour
             LicensePointManager.Instance.DeductPoint(4);
 
             UIManager.Instance.showViolationNotyfy("Va chạm với phương tiện khác", -4);
+
+            if (tracker != null) // điều chỉnh độ khó
+            {
+                tracker.AddViolation();
+            }
 
 
         }

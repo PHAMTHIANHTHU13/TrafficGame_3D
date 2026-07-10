@@ -4,25 +4,25 @@ using UnityEngine;
 
 public class StopLineChecker : MonoBehaviour
 {
-    public TrafficLightController trafficLight; 
+    public TrafficLightController trafficLight;
 
 
-    public float stopSpeed = 0.5f; 
-                                   
+    public float stopSpeed = 0.5f;
 
-    private void OnTriggerEnter(Collider other) 
+
+    private void OnTriggerEnter(Collider other)
     {
         // lấy tốc độ của player
         TestCharacterController playerController = other.GetComponentInParent<TestCharacterController>(); // lấy TestCharacterController của player để kiểm tra tốc độ, dùng GetComponentInParent vì collider có thể nằm ở con của player
-  
+
         if (!other.CompareTag("Player")) // kiểm tra xem cái mà đụng vào stopline có phải là player không ?
         {
             return;
-        } 
+        }
 
-        if(playerController != null) // kiểm tra xem player có đang dừng đèn đỏ không 
+        if (playerController != null) // kiểm tra xem player có đang dừng đèn đỏ không 
         {
-            playerController.isStopline = true; 
+            playerController.isStopline = true;
         }
 
         float speedPlayer = playerController.GetCurrentSpeed(); // lấy tốc độ của player 
@@ -32,17 +32,24 @@ public class StopLineChecker : MonoBehaviour
             if (speedPlayer > stopSpeed) // nếu tốc độ player lớn hơn tốc độ dừng là 0.5
             {
                 Debug.Log("Bạn đã vượt đèn đỏ!");
-                
+
                 ViolationStatistics.Instance.RecordViolation("Vượt đèn đỏ", -4);
 
                 LicensePointManager.Instance.DeductPoint(4);
 
                 UIManager.Instance.showViolationNotyfy("Vượt đèn đỏ", -4);
-                
+                // điều chỉnh độ khó
+                PerformanceTracker tracker =FindObjectOfType<PerformanceTracker>();
+
+                if (tracker != null)
+                {
+                    tracker.AddViolation();
+                }
+
             }
 
         }
-        
+
     }
 
     private void OnTriggerExit(Collider other) // khi player rời khỏi vạch dừng
@@ -54,7 +61,7 @@ public class StopLineChecker : MonoBehaviour
             return;
         }
 
-        if(playerController != null)
+        if (playerController != null)
         {
             playerController.isStopline = false; // khi rời khỏi vạch dừng thì isStopline sẽ là false
         }

@@ -1,5 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using System;
 
 namespace rayzngames
@@ -480,7 +482,7 @@ namespace rayzngames
 
 		#endregion
 	}
-
+	#if UNITY_EDITOR
 	#region CustomInspector
 	[CustomEditor(typeof(BicycleVehicle))]
 	//We need to extend the Editor
@@ -513,5 +515,6 @@ namespace rayzngames
 	}	
 
 	#endregion
+	#endif
 
 }

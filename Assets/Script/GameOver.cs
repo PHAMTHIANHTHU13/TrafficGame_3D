@@ -12,7 +12,9 @@ public class GameOver : MonoBehaviour
     public TextMeshProUGUI statsText;
     public Button buttonPlayAgain;
 
-    public
+    public AudioSource gameMusic;
+    public AudioSource gameOverSound;
+
 
 
     void Awake()
@@ -51,20 +53,22 @@ public class GameOver : MonoBehaviour
 
     public void ShowGameOver()
     {
-        //------------------------------------------------
-        // Ẩn gameplay UI
-        //------------------------------------------------
-
         UIManager.Instance.HideGameplayUI();
-
-        //------------------------------------------------
-        // Hiện game over
-        //------------------------------------------------
 
         gameOverUI.SetActive(true);
 
-        string stats =
-            ViolationStatistics.Instance.GetStatisticsText();
+        if (gameMusic != null)
+        {
+            gameMusic.Stop();
+        }
+
+        if (gameOverSound != null)
+        {
+            gameOverSound.Play();
+        }
+
+
+        string stats = ViolationStatistics.Instance.GetStatisticsText();
 
         statsText.text = stats;
     }

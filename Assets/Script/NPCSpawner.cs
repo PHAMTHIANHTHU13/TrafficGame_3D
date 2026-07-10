@@ -100,11 +100,7 @@ public class NPCSpawner : MonoBehaviour
                 frontCars++;
             }
         }
-
-        //------------------------------------------------
         // random density
-        //------------------------------------------------
-
         int desiredCars =
             Random.Range(
                 targetCarCount - 1,
@@ -114,20 +110,13 @@ public class NPCSpawner : MonoBehaviour
         desiredCars =
             Mathf.Max(2, desiredCars);
 
-        //------------------------------------------------
         // spawn thêm nếu thiếu
-        //------------------------------------------------
 
         int safetyLoop = 20;
 
-        while (
-            frontCars < desiredCars
-            &&
-            safetyLoop > 0
-        )
+        while ( frontCars < desiredCars && safetyLoop > 0)
         {
-            bool spawned =
-                SpawnSingleCar();
+            bool spawned = SpawnSingleCar();
 
             if (spawned)
             {
@@ -137,194 +126,89 @@ public class NPCSpawner : MonoBehaviour
             safetyLoop--;
         }
     }
-
-    //------------------------------------------------
     // SPAWN SINGLE CAR
-    //------------------------------------------------
 
     bool SpawnSingleCar()
     {
-        //------------------------------------------------
         // safe lane
-        //------------------------------------------------
 
-        bool forceSafeLane =
-            Random.value
-            < safeLaneChance;
+        bool forceSafeLane = Random.value < safeLaneChance;
 
-        //------------------------------------------------
         // opposite?
-        //------------------------------------------------
 
-        bool isOpposite =
-            Random.value
-            < currentOppositeChance;
-
-        //------------------------------------------------
+        bool isOpposite = Random.value < currentOppositeChance;
         // choose lane
-        //------------------------------------------------
 
         if(playerController.isStopline) // nếu player đang dừng thì không sinh ptieenj đi ngược chiều
         {
             isOpposite = false;
         }
 
-        Transform lane =
-            ChooseLane(
-                isOpposite,
-                forceSafeLane
-            );
-
-        //------------------------------------------------
+        Transform lane = ChooseLane( isOpposite,forceSafeLane);
         // invalid lane
-        //------------------------------------------------
 
         if (lane == null)
+        {
             return false;
+        }
 
-        //------------------------------------------------
         // limit lane density
-        //------------------------------------------------
 
-        if (
-            CountCarsInLane(lane)
-            >= maxCarsPerLane
-        )
+        if (CountCarsInLane(lane) >= maxCarsPerLane)
         {
             return false;
         }
-
-        //------------------------------------------------
         // get pooled car
-        //------------------------------------------------
 
-        int carType =
-            Random.Range(
-                0,
-                npCars.Length
-            );
+        int carType = Random.Range(0,npCars.Length);
 
-        GameObject car =
-            NPCPooling.Instance
-            .GetCar(carType);
+        GameObject car = NPCPooling.Instance.GetCar(carType);
 
-        //------------------------------------------------
         // spawn distance
-        //------------------------------------------------
 
-        float minDistance =
-            isOpposite ? 160f : 70f;
+        float minDistance = isOpposite ? 160f : 70f;
 
-        float maxDistance =
-            isOpposite
-            ? currentTrafficDistance + 60f
-            : currentTrafficDistance;
+        float maxDistance = isOpposite? currentTrafficDistance + 60f: currentTrafficDistance;
 
-        float spawnZ =
-            player.position.z
-            + Random.Range(
-                minDistance,
-                maxDistance
-            );
+        float spawnZ = player.position.z+ Random.Range(minDistance,maxDistance);
 
-        //------------------------------------------------
         // prevent impossible opposite wall
-        //------------------------------------------------
 
-        if (
-            IsEscapeBlocked(
-                isOpposite,
-                spawnZ
-            )
-        )
+        if (IsEscapeBlocked(isOpposite,spawnZ))
         {
-            NPCPooling.Instance
-                .ReturnCar(car);
-
+            NPCPooling.Instance.ReturnCar(car);
             return false;
         }
-
-        //------------------------------------------------
         // prevent side by side wall
-        //------------------------------------------------
-
-        if (
-            IsSideBySideBlocked(
-                spawnZ
-            )
-        )
+        if (IsSideBySideBlocked(spawnZ))
         {
-            NPCPooling.Instance
-                .ReturnCar(car);
-
+            NPCPooling.Instance.ReturnCar(car);
             return false;
         }
-
-        //------------------------------------------------
         // occupied?
-        //------------------------------------------------
-
-        if (
-            IsLaneOccupied(
-                lane,
-                spawnZ,
-                minSpawnGap
-            )
-        )
+        if (IsLaneOccupied(lane,spawnZ,minSpawnGap))
         {
-            NPCPooling.Instance
-                .ReturnCar(car);
-
+            NPCPooling.Instance.ReturnCar(car);
             return false;
         }
-
-        //------------------------------------------------
         // set transform
-        //------------------------------------------------
-
-        car.transform.position =
-            new Vector3(
-                lane.position.x,
-                lane.position.y,
-                spawnZ
-            );
-
-        car.transform.rotation =
-            lane.rotation;
-
-        //------------------------------------------------
+        car.transform.position =new Vector3(lane.position.x,lane.position.y,spawnZ);
+        car.transform.rotation =lane.rotation;
         // movement
-        //------------------------------------------------
-
-        NPCMove move =
-            car.GetComponent<NPCMove>();
-
+        NPCMove move = car.GetComponent<NPCMove>();
         if (move != null)
         {
-            move.SetOpposite(
-                isOpposite
-            );
-
+            move.SetOpposite(isOpposite);
             move.ResetToDefault();
         }
-
-        //------------------------------------------------
         // destroy npc
-        //------------------------------------------------
-
-        DestroyNPC destroy =
-            car.GetComponent
-            <DestroyNPC>();
-
+        DestroyNPC destroy = car.GetComponent<DestroyNPC>();
         if (destroy != null)
         {
             destroy.spawner = this;
             destroy.player = player;
         }
-
-        //------------------------------------------------
         // add list
-        //------------------------------------------------
 
         if (!activeCars.Contains(car))
         {
@@ -334,71 +218,37 @@ public class NPCSpawner : MonoBehaviour
         return true;
     }
 
-
-
-    //------------------------------------------------
     // CHOOSE LANE
-    //------------------------------------------------
-
-    Transform ChooseLane(
-        bool isOpposite,
-        bool preferSafe
-    )
+    Transform ChooseLane(bool isOpposite,bool preferSafe)
     {
-        List<Transform> lanes =
-            new List<Transform>();
-
+        List<Transform> lanes = new List<Transform>();
         if (isOpposite)
         {
-            lanes.Add(
-                laneLeftOpposite
-            );
-
-            lanes.Add(
-                laneRightOpposite
-            );
+            lanes.Add( laneLeftOpposite);
+            lanes.Add(laneRightOpposite);
         }
         else
         {
             lanes.Add(laneLeft);
             lanes.Add(laneRight);
         }
-
-        //------------------------------------------------
         // tìm lane ít xe nhất
-        //------------------------------------------------
-
         Transform bestLane = null;
 
-        int lowestCount =
-            int.MaxValue;
+        int lowestCount = int.MaxValue;
 
-        foreach (Transform lane
-            in lanes)
+        foreach (Transform lane in lanes)
         {
-            int count =
-                CountCarsInLane(
-                    lane
-                );
+            int count = CountCarsInLane( lane);
 
             if (count < lowestCount)
             {
-                lowestCount =
-                    count;
-
+                lowestCount = count;
                 bestLane = lane;
             }
         }
-
-        //------------------------------------------------
         // safe lane system
-        //------------------------------------------------
-
-        if (
-            preferSafe
-            &&
-            lowestCount >= 1
-        )
+        if ( preferSafe && lowestCount >= 1)
         {
             return null;
         }
@@ -406,43 +256,29 @@ public class NPCSpawner : MonoBehaviour
         return bestLane;
     }
 
-    //------------------------------------------------
     // COUNT CARS IN LANE
-    //------------------------------------------------
 
-    int CountCarsInLane(
-        Transform lane
-    )
+    int CountCarsInLane(Transform lane)
     {
         int count = 0;
 
-        foreach (GameObject car
-            in activeCars)
+        foreach (GameObject car in activeCars)
         {
-            if (
-                car == null
-                || !car.activeInHierarchy
-            )
+            if (car == null|| !car.activeInHierarchy)
+            {
                 continue;
-
-            bool sameLane =
-                Mathf.Abs(
-                    car.transform.position.x
-                    - lane.position.x
-                ) < 0.5f;
+            }
+            
+            bool sameLane = Mathf.Abs(car.transform.position.x - lane.position.x) < 0.5f;
 
             if (!sameLane)
+            {
                 continue;
+            }
+                
+            float deltaZ = car.transform.position.z- player.position.z;
 
-            float deltaZ =
-                car.transform.position.z
-                - player.position.z;
-
-            if (
-                deltaZ > 0
-                &&
-                deltaZ < currentTrafficDistance
-            )
+            if (deltaZ > 0 && deltaZ < currentTrafficDistance)
             {
                 count++;
             }
@@ -451,39 +287,23 @@ public class NPCSpawner : MonoBehaviour
         return count;
     }
 
-    //------------------------------------------------
     // IS LANE OCCUPIED
-    //------------------------------------------------
-
-    bool IsLaneOccupied(
-        Transform lane,
-        float z,
-        float range
-    )
+    bool IsLaneOccupied(Transform lane,float z,float range)
     {
-        foreach (GameObject car
-            in activeCars)
+        foreach (GameObject car in activeCars)
         {
-            if (
-                car == null
-                || !car.activeInHierarchy
-            )
-                continue;
-
-            bool sameLane =
-                Mathf.Abs(
-                    car.transform.position.x
-                    - lane.position.x
-                ) < 0.5f;
+            if (car == null|| !car.activeInHierarchy)
+            {
+              continue;  
+            }
+            bool sameLane = Mathf.Abs(car.transform.position.x - lane.position.x) < 0.5f;
 
             if (!sameLane)
-                continue;
-
-            float distance =
-                Mathf.Abs(
-                    car.transform.position.z
-                    - z
-                );
+            {
+               continue; 
+            }
+                
+            float distance = Mathf.Abs(car.transform.position.z - z);
 
             if (distance < range)
             {
@@ -493,34 +313,19 @@ public class NPCSpawner : MonoBehaviour
 
         return false;
     }
-
-    //------------------------------------------------
     // SIDE BY SIDE CHECK
-    //------------------------------------------------
-
-    bool IsSideBySideBlocked(
-        float spawnZ
-    )
+    bool IsSideBySideBlocked(float spawnZ)
     {
         foreach (GameObject car
             in activeCars)
         {
-            if (
-                car == null
-                || !car.activeInHierarchy
-            )
+            if (car == null|| !car.activeInHierarchy)
+            {
                 continue;
+            }
+            float distance = Mathf.Abs(car.transform.position.z- spawnZ);
 
-            float distance =
-                Mathf.Abs(
-                    car.transform.position.z
-                    - spawnZ
-                );
-
-            if (
-                distance
-                < sideBySideBlockDistance
-            )
+            if (distance< sideBySideBlockDistance)
             {
                 return true;
             }
@@ -529,76 +334,52 @@ public class NPCSpawner : MonoBehaviour
         return false;
     }
 
-    bool IsEscapeBlocked(
-    bool isOpposite,
-    float spawnZ
-)
+    bool IsEscapeBlocked(bool isOpposite,float spawnZ)
     {
-        //------------------------------------------------
         // chỉ kiểm tra xe ngược chiều
-        //------------------------------------------------
 
         if (!isOpposite)
-            return false;
-
+        {
+           return false; 
+        }
+            
         int oppositeCount = 0;
 
-        foreach (GameObject car
-            in activeCars)
+        foreach (GameObject car in activeCars)
         {
-            if (
-                car == null
-                || !car.activeInHierarchy
-            )
+            if (car == null || !car.activeInHierarchy)
+            {
                 continue;
-
-            NPCMove move =
-                car.GetComponent<NPCMove>();
-
+            }
+                
+            NPCMove move = car.GetComponent<NPCMove>();
             if (move == null)
+            {
                 continue;
-
-            //------------------------------------------------
+            }
             // chỉ xét xe ngược chiều
-            //------------------------------------------------
 
-            bool otherOpposite =
-                car.transform.forward.z < 0;
+            bool otherOpposite = car.transform.forward.z < 0;
 
             if (!otherOpposite)
+            {
                 continue;
+            }
 
-            //------------------------------------------------
             // gần player
-            //------------------------------------------------
 
-            float distance =
-                Mathf.Abs(
-                    car.transform.position.z
-                    - spawnZ
-                );
+            float distance = Mathf.Abs(car.transform.position.z - spawnZ );
 
-            if (
-                distance
-                < escapeGapDistance
-            )
+            if (distance < escapeGapDistance)
             {
                 oppositeCount++;
             }
         }
-
-        //------------------------------------------------
         // nếu đã có opposite traffic
         // thì không spawn thêm
-        //------------------------------------------------
-
         return oppositeCount >= 1;
     }
-
-    //------------------------------------------------
     // REMOVE CAR
-    //------------------------------------------------
-
     public void OnCarDestroyed(GameObject car)
     {
         if (activeCars.Contains(car))

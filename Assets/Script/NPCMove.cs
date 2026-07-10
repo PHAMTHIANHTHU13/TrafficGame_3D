@@ -7,45 +7,22 @@ public class NPCMove : MonoBehaviour
 
     public float minSpeed = 15f;
     public float maxSpeed = 30f;
-
     private float currentSpeed;
-
     private bool isBlocked = false;
-
     public float detectDistance = 20f;
-
     public LayerMask npcLayer;
 
     private TrafficLightController currentLight;
 
-    //------------------------------------------------
-    // opposite traffic
-    //------------------------------------------------
-
     private bool isOpposite = false;
-
-    //------------------------------------------------
-    // references
-    //------------------------------------------------
 
     private PerformanceTracker tracker;
 
-    //------------------------------------------------
-    // START
-    //------------------------------------------------
-
     void Start()
     {
-        tracker =
-            FindObjectOfType
-            <PerformanceTracker>();
-
+        tracker = FindObjectOfType<PerformanceTracker>();
         ResetToDefault();
     }
-
-    //------------------------------------------------
-    // RESET
-    //------------------------------------------------
 
     public void ResetToDefault()
     {
@@ -53,53 +30,23 @@ public class NPCMove : MonoBehaviour
 
         if (tracker != null)
         {
-            difficulty =
-                tracker.difficultyValue;
+            difficulty = tracker.difficultyValue;
         }
+        float speedMultiplier = Mathf.Lerp(0.7f, 1.5f, difficulty);
 
-        //------------------------------------------------
-        // DDA speed scaling
-        //------------------------------------------------
-
-        float speedMultiplier =
-            Mathf.Lerp(
-                0.7f,
-                1.5f,
-                difficulty
-            );
-
-        //------------------------------------------------
-        // base speed
-        //------------------------------------------------
-
-        currentSpeed =
-            Random.Range(
-                minSpeed,
-                maxSpeed
-            )
-            * speedMultiplier;
-
-        //------------------------------------------------
-        // opposite traffic faster
-        //------------------------------------------------
+        currentSpeed = Random.Range(minSpeed, maxSpeed) * speedMultiplier;
 
         if (isOpposite)
         {
             currentSpeed *= 1.2f;
         }
 
-        //------------------------------------------------
-        // reset states
-        //------------------------------------------------
-
         isBlocked = false;
 
         currentLight = null;
     }
 
-    //------------------------------------------------
     // SET OPPOSITE
-    //------------------------------------------------
 
     public void SetOpposite(bool opposite)
     {
@@ -110,103 +57,44 @@ public class NPCMove : MonoBehaviour
     {
         return isOpposite;
     }
-
-    //------------------------------------------------
-    // UPDATE
-    //------------------------------------------------
-
     void Update()
     {
-        //------------------------------------------------
-        // same direction traffic
-        //------------------------------------------------
+        // same direction traffic 
 
         if (!isOpposite)
         {
-            isBlocked =
-                IsBlockedByNPC();
+            isBlocked = IsBlockedByNPC();
         }
-
-        //------------------------------------------------
         // opposite traffic
-        //------------------------------------------------
-
         else
         {
-            //------------------------------------------------
             // opposite traffic
             // ignores front cars
-            //------------------------------------------------
-
             isBlocked = false;
         }
 
-        //------------------------------------------------
         // only same-direction cars
         // obey red lights
-        //------------------------------------------------
 
-        bool shouldStop =
-        (
-            !isOpposite
-            &&
-            currentLight != null
-            &&
-            currentLight.IsRed()
-        )
-        || isBlocked;
-
-        //------------------------------------------------
+        bool shouldStop = (!isOpposite && currentLight != null && currentLight.IsRed()) || isBlocked;
         // movement
-        //------------------------------------------------
 
-        float moveSpeed =
-            shouldStop
-            ? 0
-            : currentSpeed;
+        float moveSpeed = shouldStop ? 0 : currentSpeed;
 
-        transform.Translate(
-            Vector3.forward
-            * moveSpeed
-            * Time.deltaTime
-        );
+        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
     }
 
-    //------------------------------------------------
     // NPC BLOCK DETECTION
-    //------------------------------------------------
 
     bool IsBlockedByNPC()
     {
-        Ray ray =
-            new Ray(
-                transform.position
-                + Vector3.up * 0.5f
-                + transform.forward,
-                transform.forward
-            );
-
+        Ray ray = new Ray(transform.position + Vector3.up * 0.5f + transform.forward, transform.forward);
         RaycastHit hit;
-
-        if (
-            Physics.Raycast(
-                ray,
-                out hit,
-                detectDistance,
-                npcLayer
-            )
-        )
+        if (Physics.Raycast(ray, out hit, detectDistance, npcLayer))
         {
-            NPCMove otherCar =
-                hit.collider
-                .GetComponent<NPCMove>();
+            NPCMove otherCar = hit.collider.GetComponent<NPCMove>();
 
-            if (
-                otherCar != null
-                &&
-                otherCar.currentSpeed
-                < currentSpeed * 0.9f
-            )
+            if (otherCar != null && otherCar.currentSpeed < currentSpeed * 0.9f)
             {
                 return true;
             }
@@ -215,56 +103,37 @@ public class NPCMove : MonoBehaviour
         return false;
     }
 
-    //------------------------------------------------
     // TRIGGER ENTER
-    //------------------------------------------------
 
-    void OnTriggerEnter(
-        Collider other
-    )
+    void OnTriggerEnter(Collider other)
     {
-        //------------------------------------------------
         // road speed limit
-        //------------------------------------------------
-
         if (other.CompareTag("Road"))
         {
-            RoadSegment zone =
-                other.GetComponent
-                <RoadSegment>();
-
+            RoadSegment zone = other.GetComponent<RoadSegment>();
             if (zone != null)
             {
-                currentSpeed =
-                    zone.speedLimit / 5f;
+                float difficulty = tracker.difficultyValue;
 
-                //------------------------------------------------
+                float multiplier = Mathf.Lerp(0.7f,1.5f,difficulty);
+
+                currentSpeed =(zone.speedLimit / 5f)* multiplier;
+
                 // opposite traffic slightly faster
-                //------------------------------------------------
 
                 if (isOpposite)
                 {
                     currentSpeed *= 1.2f;
                 }
 
-                currentSpeed =
-                    Mathf.Clamp(
-                        currentSpeed,
-                        5f,
-                        maxSpeed * 2f
-                    );
+                currentSpeed = Mathf.Clamp(currentSpeed, 5f, maxSpeed * 2f);
             }
         }
-
-        //------------------------------------------------
         // traffic light
-        //------------------------------------------------
 
         if (!isOpposite)
         {
-            TrafficLightController light =
-                other.GetComponent
-                <TrafficLightController>();
+            TrafficLightController light = other.GetComponent<TrafficLightController>();
 
             if (light != null)
             {
@@ -272,92 +141,44 @@ public class NPCMove : MonoBehaviour
             }
         }
     }
-
-    //------------------------------------------------
     // TRIGGER EXIT
-    //------------------------------------------------
 
-    void OnTriggerExit(
-        Collider other
-    )
+    void OnTriggerExit(Collider other)
     {
-        TrafficLightController light =
-            other.GetComponent
-            <TrafficLightController>();
+        TrafficLightController light = other.GetComponent<TrafficLightController>();
 
-        if (
-            light != null
-            &&
-            currentLight == light
-        )
+        if (light != null && currentLight == light)
         {
             currentLight = null;
         }
     }
 
-    //------------------------------------------------
     // COLLISION
-    //------------------------------------------------
 
-    void OnCollisionEnter(
-        Collision collision
-    )
+    void OnCollisionEnter(Collision collision)
     {
-        if (
-            collision.gameObject
-            .CompareTag("NPC")
-        )
+        if (collision.gameObject.CompareTag("NPC"))
         {
-            Debug.Log(
-                $"{gameObject.name} hit {collision.gameObject.name}"
-            );
-
-            //------------------------------------------------
+            Debug.Log($"{gameObject.name} hit {collision.gameObject.name}");
             // pooling
-            //------------------------------------------------
+            NPCPooling.Instance.ReturnCar(gameObject);
 
-            NPCPooling.Instance
-                .ReturnCar(gameObject);
+            NPCPooling.Instance.ReturnCar(collision.gameObject);
 
-            NPCPooling.Instance
-                .ReturnCar(
-                    collision.gameObject
-                );
-
-            //------------------------------------------------
             // remove active list
-            //------------------------------------------------
 
-            DestroyNPC destroyThis =
-                GetComponent
-                <DestroyNPC>();
+            DestroyNPC destroyThis = GetComponent<DestroyNPC>();
 
-            DestroyNPC destroyOther =
-                collision.gameObject
-                .GetComponent
-                <DestroyNPC>();
+            DestroyNPC destroyOther = collision.gameObject.GetComponent<DestroyNPC>();
 
-            if (
-                destroyThis != null
-                &&
-                destroyThis.spawner != null
-            )
+            if (destroyThis != null && destroyThis.spawner != null)
             {
-                destroyThis.spawner
-                .OnCarDestroyed(
-                    gameObject
-                );
+                destroyThis.spawner.OnCarDestroyed(gameObject);
             }
 
-            if (
-                destroyOther != null
-                &&
-                destroyOther.spawner != null
-            )
+            if (destroyOther != null && destroyOther.spawner != null)
             {
-                destroyOther.spawner
-                .OnCarDestroyed(
-                    collision.gameObject
+                destroyOther.spawner.OnCarDestroyed(collision.gameObject
                 );
             }
         }
